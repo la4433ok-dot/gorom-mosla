@@ -1,13 +1,6 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-
-    <script type="text/javascript">
-  setTimeout(function() {
-    window.location.href = "https://t.me/iIobRcYvU2MGU9V1bot?startapp"; // আপনার লিঙ্ক দিন
-  }, 2000); // ১০ সেকেন্ড (১০,০০০ মিলিসেকেন্ড)
-    </script>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>ভিডিও পোর্টাল - টেলিগ্রাম মিনি অ্যাপ</title>
@@ -34,94 +27,7 @@
             min-height: 100vh;
         }
 
-        .verify-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            backdrop-filter: blur(12px);
-            z-index: 2000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: all 0.3s ease;
-        }
-
-        .verify-card {
-            background: linear-gradient(145deg, #11161f, #0c1120);
-            border-radius: 2rem;
-            padding: 2rem 1.5rem;
-            max-width: 350px;
-            width: 90%;
-            text-align: center;
-            border: 1px solid #ff6a3d;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-            animation: fadeInUp 0.4s ease;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .verify-card i {
-            font-size: 4rem;
-            color: #ff6a3d;
-            margin-bottom: 1rem;
-        }
-
-        .verify-card h2 {
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
-            color: #ffaa66;
-        }
-
-        .verify-card p {
-            font-size: 0.9rem;
-            margin-bottom: 1.5rem;
-            opacity: 0.8;
-        }
-
-        .verify-btn {
-            background: #ff6a3d;
-            border: none;
-            padding: 1rem 2rem;
-            border-radius: 3rem;
-            color: white;
-            font-weight: bold;
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 4px 15px rgba(255,106,61,0.3);
-        }
-
-        .verify-btn:hover {
-            transform: scale(1.02);
-            background: #ff8555;
-        }
-
-        .verify-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
         .main-content {
-            display: none;
-        }
-
-        .main-content.visible {
             display: block;
         }
 
@@ -487,17 +393,6 @@
 </head>
 <body>
 
-<div id="verifyOverlay" class="verify-overlay">
-    <div class="verify-card">
-        <i class="fas fa-shield-alt"></i>
-        <h2>ভেরিফিকেশন প্রয়োজন</h2>
-        <p>এই সাইটের ভিডিও গুলো প্রাপ্ত বয়স্কদের জন্য। আপনার বয়স 18 বছর এর বেশি হলে নিচের বাটনে ক্লিক করুন 👇👇👇</p>
-        <button id="verifyBtn" class="verify-btn">
-            <i class="fas fa-check-circle"></i> Unlock Content 🔓
-        </button>
-    </div>
-</div>
-
 <div id="mainContent" class="main-content">
     <div class="container">
         <div class="slider-section">
@@ -599,9 +494,8 @@
     // এডসগ্রাম কনফিগারেশন
     const ADSGRAM_BLOCK_ID = "int-28360";
     let mainAdController = null;
-    let verificationAdController = null;
     
-    function initAdsgramController(blockId, isVerification = false) {
+    function initAdsgramController(blockId) {
         if (!window.Adsgram) {
             console.error("Adsgram SDK লোড হয়নি!");
             return null;
@@ -613,7 +507,7 @@
                 debug: false,
                 debugBannerType: "RewardedVideo"
             });
-            console.log(`${isVerification ? ' 🔞 ভেরিফিকেশন' : 'মেইন'} AdController তৈরি হয়েছে`);
+            console.log("মেইন AdController তৈরি হয়েছে");
             return controller;
         } catch(e) {
             console.error("Adsgram init error:", e);
@@ -638,7 +532,6 @@
             hideLoadingNotification(loadingNotif);
             
             if (result && result.done === true) {
-                // কুলডাউন নেই - সাথে সাথেই onSuccess কল হবে
                 if(onSuccess) onSuccess();
                 return true;
             } else {
@@ -681,45 +574,6 @@
         } else {
             alert(message);
         }
-    }
-    
-    // ======================= ভেরিফিকেশন =======================
-    async function handleVerification() {
-        const verifyBtn = document.getElementById('verifyBtn');
-        verifyBtn.disabled = true;
-        verifyBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> লোডিং...';
-        
-        if (!verificationAdController) {
-            verificationAdController = initAdsgramController(ADSGRAM_BLOCK_ID, true);
-        }
-        
-        if (!verificationAdController) {
-            showNotification("❌ বিজ্ঞাপন সিস্টেম ইনিশিয়ালাইজ হয়নি! দয়া করে আবার চেষ্টা করুন।", false);
-            verifyBtn.disabled = false;
-            verifyBtn.innerHTML = '<i class="fas fa-check-circle"></i> ভেরিফাই করুন';
-            return;
-        }
-        
-        await showAd(
-            verificationAdController,
-            () => {
-                showNotification("✅ এড দেখার জন্য ধন্যবাদ! সাইটে স্বাগতম।", true);
-                const overlay = document.getElementById('verifyOverlay');
-                overlay.style.opacity = '0';
-                setTimeout(() => {
-                    overlay.style.display = 'none';
-                    document.getElementById('mainContent').classList.add('visible');
-                }, 300);
-            },
-            (error) => {
-                verifyBtn.disabled = false;
-                verifyBtn.innerHTML = '<i class="fas fa-check-circle"></i> 🔞 ভেরিফাই করুন';
-            }
-        );
-        
-        if (verifyBtn.disabled === false) return;
-        verifyBtn.disabled = false;
-        verifyBtn.innerHTML = '<i class="fas fa-check-circle"></i> 🔞 ভেরিফাই করুন';
     }
     
     // ======================= বাটন আনলক সিস্টেম =======================
@@ -771,7 +625,7 @@
     
     async function showAdForUnlock(videoId, buttonType, btnElement, onComplete) {
         if (!mainAdController) {
-            mainAdController = initAdsgramController(ADSGRAM_BLOCK_ID, false);
+            mainAdController = initAdsgramController(ADSGRAM_BLOCK_ID);
         }
         
         if (!mainAdController) {
@@ -939,10 +793,6 @@
         }
     }
     
-    function handlePlayClick(videoId, e) {
-        onPlayIconClick(videoId);
-    }
-    
     // স্লাইডার
     let currentSlide = 0;
     let autoInterval;
@@ -998,7 +848,6 @@
         modal.style.display = 'flex';
     }
     
-    document.getElementById('verifyBtn').addEventListener('click', handleVerification);
     document.getElementById('privacyBtn').addEventListener('click', showPrivacy);
     document.getElementById('aboutBtn').addEventListener('click', showAbout);
     document.querySelector('.close-modal').addEventListener('click', () => {
@@ -1044,6 +893,7 @@
         waitForAdsgram().then((loaded) => {
             if(loaded && window.Adsgram) {
                 console.log("✅ এডসগ্রাম প্রস্তুত!");
+                mainAdController = initAdsgramController(ADSGRAM_BLOCK_ID);
             } else {
                 console.warn("⚠️ এডসগ্রাম লোড হয়নি!");
                 showNotification("⚠️ বিজ্ঞাপন সিস্টেম লোড হয়নি! দয়া করে পেজ রিফ্রেশ করুন।", false);
